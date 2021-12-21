@@ -1,0 +1,10 @@
+# The problem is the following:
+- we want to launch a task
+- get the result
+- use this result to launch another task
+
+- example:
+- get user id
+- get user information from DB using id
+- send the mail to the users
+
