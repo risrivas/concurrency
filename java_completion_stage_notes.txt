@@ -1,3 +1,7 @@
+################
+# Introduction
+################
+
 # The problem is the following:
 - we want to launch a task
 - get the result
@@ -7,4 +11,55 @@
 - get user id
 - get user information from DB using id
 - send the mail to the users
+
+# generic template
+ExecutorService service = Executors.newSingle....();
+Runnable task = () -> {};
+Future future = service.submit(task);
+
+// do something
+
+Object result = future.get(); // block
+or,
+future.cancel();
+
+=> target is to make it non-blocking
+
+# asynchronous and concurrent are different notions
+- what we need is:
+  - being able to trigger a task on the completion of another one
+  - being able to specify in which thread a task is executed
+
+- one solution is fire an event and have a listener to get notified and do some action
+- however, this is still blocking and synchronous
+- thus, events are not the right tools - lets check messages
+- a message is sent to the broker
+- this will trigger the subscribers of this kind of message
+- however, even message driven design is synchronous
+
+- event vs message:
+- an event is a signal
+- a message is a piece of data that recipients will get and react upon
+
+
+#####################################################
+# Setting up an async operation with CompletionStage
+#####################################################
+- Define a task
+- how to launch a task in another thread?
+  - Runnable (no return)
+  - Callable (return a value and throws exception)
+
+- Runnable runnable = () -> {....};
+- Callable<User> readUser = () -> connection.readUser(1L);
+
+- if want to execute the task in the same thread (calling thread):
+runnable.run(); // instead of runnable.start()
+readUser.call(); // instead of submitting to executor service
+
+
+
+
+
+
 
