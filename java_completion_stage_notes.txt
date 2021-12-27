@@ -51,11 +51,92 @@ future.cancel();
   - Callable (return a value and throws exception)
 
 - Runnable runnable = () -> {....};
-- Callable<User> readUser = () -> connection.readUser(1L);
+- Callable<User> callable = () -> connection.readUser(1L);
 
 - if want to execute the task in the same thread (calling thread):
-runnable.run(); // instead of runnable.start()
-readUser.call(); // instead of submitting to executor service
+runnable.run(); // instead of using start()
+callable.call(); // instead of submitting to executor service
+
+- if want to execute the task in another thread:
+new Thread(runnable).start();
+or
+Thread thread = new Thread();
+thread.start(runnable);
+
+=> the above pattern should not be used anymore, instead use executor service
+ExecutorService service = Executors.newSingleThreadExecutor();
+Future<?> future = service.submit(runnable);
+or
+Future<User> future = service.submit(callable);
+
+
+## From Future to CompletableFuture
+- CompletableFuture is almost same as Future but has more methods
+- important methods:
+runAsync(runnable)
+supplyAsync(supplier)
+
+- example (Runnable):
+instead of using Future object,
+  Future<?> future = service.submit(runnable);
+use,
+  CompletableFuture<Void> compFut = CompletableFuture.runAsync(runnable);
+
+- CompletableFuture does NOT work with Callables but only with Suppliers
+- example (Supplier):
+Supplier<User> supplier = () -> connection.readUser(1L);
+...
+// service.submit(supplier); // this will NOT compile
+CompletableFuture<User> compFut = CompletableFuture.supplyAsync(supplier);
+
+- can convert any Callable to Supplier but ensure that supplier can NOT throw any checked exceptions
+- by default, the async tasks are run in the common fork/join pool
+- however, can also pass executor service as an argument
+- example:
+Future<?> future = service.submit(runnable);
+CompletableFuture<Void> compFut = CompletableFuture.runAsync(runnable, service);
+or,
+CompletableFuture<User> compFut = CompletableFuture.supplyAsync(supplier, service);
+
+
+## Closer look at CompletableFuture
+- CompletableFuture is a class that implements:
+Future
+CompletionStage
+
+- CompletionStage adds methods to chain tasks
+- CompletableFuture add more methods
+
+- a task has a state:
+running
+completed normally
+completed exceptionally
+
+- 5 methods in Future
+T get();
+T get(long timeOut, TimeUnit unit);
+void cancel();
+boolean isDone();
+boolean isCancelled();
+
+# more methods in CompletableFuture
+- get the results in a different way
+T join(); // may throw an unchecked exception
+T getNow(T valueIfAbsent);
+
+- force the returned value
+boolean complete(V value);
+void obtrudeValue(V value);
+
+- force an exception
+boolean completeExceptionally(Throwable t);
+void obtrudeException(Throwable t);
+
+
+
+
+
+
 
 
 
