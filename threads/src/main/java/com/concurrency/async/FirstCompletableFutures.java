@@ -8,15 +8,18 @@ public class FirstCompletableFutures {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService service = Executors.newSingleThreadExecutor();
 		
 		Runnable task = () -> {
-			System.out.println("I am running asynchronously in the thread " + Thread.currentThread().getName());
+			System.out.println("I am running asynchronously in the thread => " + Thread.currentThread().getName());
 		};
-		
-		CompletableFuture.runAsync(task);
-		
-		Thread.sleep(100);
-		executor.shutdown();
+
+		// use default fork-join pool
+		// CompletableFuture.runAsync(task);
+		// use executor service
+		CompletableFuture.runAsync(task, service);
+
+		// Thread.sleep(100);
+		service.shutdown();
 	}
 }

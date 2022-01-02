@@ -20,12 +20,12 @@ public class CompletableFutureWithSupplier {
 		};
 		
 		CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(supplier, executor);
-		
-		completableFuture.obtrudeValue("Tool long!");
-		
+
 		String string = completableFuture.join();
 		System.out.println("Result = " + string);
-		
+
+		completableFuture.obtrudeValue("Tool long!");
+
 		string = completableFuture.join();
 		System.out.println("Result = " + string);
 		

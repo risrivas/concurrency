@@ -7,7 +7,7 @@
 - get the result
 - use this result to launch another task
 
-- example:
+example:
 - get user id
 - get user information from DB using id
 - send the mail to the users
@@ -25,6 +25,7 @@ future.cancel();
 
 => target is to make it non-blocking
 
+
 # asynchronous and concurrent are different notions
 - what we need is:
   - being able to trigger a task on the completion of another one
@@ -39,7 +40,7 @@ future.cancel();
 
 - event vs message:
 - an event is a signal
-- a message is a piece of data that recipients will get and react upon
+- a message is a piece of data that recipients will get and react upon based on the message
 
 
 #####################################################
@@ -70,6 +71,8 @@ or
 Future<User> future = service.submit(callable);
 
 
+----------
+
 ## From Future to CompletableFuture
 - CompletableFuture is almost same as Future but has more methods
 - important methods:
@@ -98,6 +101,8 @@ CompletableFuture<Void> compFut = CompletableFuture.runAsync(runnable, service);
 or,
 CompletableFuture<User> compFut = CompletableFuture.supplyAsync(supplier, service);
 
+
+----------
 
 ## Closer look at CompletableFuture
 - CompletableFuture is a class that implements:
@@ -131,6 +136,90 @@ void obtrudeValue(V value);
 - force an exception
 boolean completeExceptionally(Throwable t);
 void obtrudeException(Throwable t);
+
+
+----------
+
+## force the returned value
+
+# boolean complete(V value)
+checks if the task is done
+- if its done: then does nothing
+- if its not done, then it completes it and sets the returned value to given value
+
+# void obtrudeValue(V value)
+checks if the task is done
+- if its done: then forces the returned value to given value => this is the difference with complete(value) method
+- if its not done, then it completes it and sets the returned value to given value
+- this function should be used only in error recovery operations
+
+
+----------
+
+## force an exception
+
+# boolean completeExceptionally(Throwable t)
+- forces the completion if the task is NOT done
+
+# void obtrudeException(Throwable t)
+- forces the completion even if the task is done
+
+
+
+#############
+# Demo code
+#############
+
+## FirstCompletableFutures.java
+
+- suppose in my main(): I just write this code
+
+Runnable task = () -> {
+      System.out.println("I am running asynchronously in the thread " + Thread.currentThread().getName());
+    };
+
+CompletableFuture.runAsync(task);
+
+- nothing is printed on output
+=> CompletableFuture uses default fork/join pool and the async thread is daemon
+   thus, the main thread dies and exits the program without printing anything
+   just adding Thread.sleep(100) after runAsync() call will print the message above
+
+- now suppose I create a ExecutorService and pass that to runAsync()
+CompletableFuture.runAsync(task, service);
+
+- here the program will not terminate as the main thread will exit - however executor service is still running its thread from the pool
+as it is non-daemon => need to explicitly call service.shutdown()
+
+- also no need to use Thread.sleep() as executor will complete the submitted task before shutdown completely
+
+--------------------
+
+## CompletableFutureWithSupplier.java
+- similar to Runnable above, if pass a supplier to supplyAsync() - it will no do anything when main() thread exits
+Supplier<String> supplier = () -> Thread.currentThread().getName();
+CompletableFuture.supplyAsync(supplier);
+
+- thus, can call join() for main() to block first
+CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(supplier);
+String string = completableFuture.join();
+System.out.println("Result = " + string);
+
+- can add sleep() in Supplier and use complete() or obtrudeValue() to force the return value
+
+
+--------------------
+
+## SimpleCompletableFuture
+- how to complete() a completableFuture
+
+--------------------
+
+
+#####################################################
+# Triggering a Task on the Completion of other tasks
+#####################################################
+
 
 
 
