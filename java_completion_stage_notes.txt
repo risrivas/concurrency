@@ -219,6 +219,11 @@ System.out.println("Result = " + string);
 #####################################################
 # Triggering a Task on the Completion of other tasks
 #####################################################
+- use case:
+have a list of primary keys - user ids (supplier)
+fetch all users from database for all the user ids (mapping)
+store them in a List<User> (reduce)
+
 
 
 

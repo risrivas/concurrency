@@ -1,4 +1,4 @@
-package com.concurrency.async;
+package com.concurrency.async.intro;
 
 import java.util.concurrent.CompletableFuture;
 
