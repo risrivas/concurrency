@@ -24,7 +24,7 @@ public class CompletableFutureWithSupplier {
 		String string = completableFuture.join();
 		System.out.println("Result = " + string);
 
-		completableFuture.obtrudeValue("Tool long!");
+		completableFuture.obtrudeValue("Too long!");
 
 		string = completableFuture.join();
 		System.out.println("Result = " + string);

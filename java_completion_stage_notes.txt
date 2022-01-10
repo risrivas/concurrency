@@ -224,6 +224,104 @@ have a list of primary keys - user ids (supplier)
 fetch all users from database for all the user ids (mapping)
 store them in a List<User> (reduce)
 
+- First task: provide the list of the primary keys
+CompletableFuture<List<Long>> cf1 = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L));
+
+- Chain a subsequent task on the completion of the first task using thenApply()
+CompletableFuture<List<Long>> cf2 = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L))
+                 .thenApply(list -> readUsers(list));
+
+- can define mapper which maps List<Long> (argument) to List<User> (return)
+Function<List<Long>, List<User>> mapper = list -> readUsers(list);
+
+- Suppose want to log a message when the list is available
+cf2.thenRun(() -> logger.info("The list of users has been read"));
+
+OR, use a consumer:
+cf2.thenAccept(users -> logger.info(users.size() + " users have been read"));
+
+- CF methods:
+Runnable => thenRun()
+Consumer => thenAccept()
+Function => thenApply()
+
+
+#######################
+# Single Task Chaining
+#######################
+- Suppose need to update a DB with a long running process, so can chain a runnable task
+CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> updateDB())
+                                              .thenRun(() -> logger.info("Update done!"));
+
+- if use thenAccept(), then the value passed will be null - not recommended
+.thenAccept(value -> ...)
+
+- instead use supplier if want to use thenAccept() or thenRun()
+CompletableFuture<Void> cf = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L))
+                                              .thenRun(() -> logger.info("..."));
+
+- So the first task can be:
+supplier: supplyAsync()
+runnable: runAsync()
+
+- and the next task can be:
+runnable: thenRun()
+consumer: thenAccept()
+function: thenApply()
+
+
+###############################
+# Composing CompletableFuture
+###############################
+- use case:
+Suppose first task fetches a list of User IDs from a remote service
+Second task fetches user object from a DB
+Both tasks are long running processes and should be run async
+
+- Snippet:
+Supplier<List<Long>> userIdsSupplier = () -> remoteService(); // returns the user IDs
+Function<List<Long>, List<User>> usersFromIds = ids -> fetchFromDB(ids); // returns the user objects
+
+CompletableFuture.supplyAsync(userIdsSupplier)
+                 .thenApply(usersFromIds);
+
+- modify the snippet code to fetch users from DB async
+Function<List<Long>, CompletableFuture<List<User>>> usersFromIds = ids -> fetchFromDB(ids); // returns the user objects
+
+CompletableFuture.supplyAsync(userIdsSupplier)
+                 .thenCompose(usersFromIds);
+
+- thenCompose() is more like flatMap() for streams
+
+
+################################
+# Triggering more than one task
+################################
+- use case:
+Get IDs -> Read Users + Log IDs -> Send Email -> Write Report + Log Emails
+
+OR,
+Get IDs -> Read Users + Get Emails -> Send Email
+# Send Email is launched if Read Users and Get Emails are done
+
+OR,
+Get IDs -> Read Users + Read Users -> Send Email
+# Send Email is launched if any of Read Users is done
+
+- When both tasks complete, we can
+execute a Runnable
+execute a BiConsumer
+execute a BiFunction
+
+- the 2 combined completable futures can return object of different types
+CompletableFuture<Long> cf1 = ...;
+CompletableFuture<User> cf2 = ...;
+
+CompletableFuture<Void> cf3 = cf1.thenAcceptBoth(cf2, (id, name) -> logger.info(...)); // BiConsumer
+
+OR,
+CompletableFuture<List<User>> cf3 = cf1.thenCombine(cf2, (id, user) -> query(...)); // BiFunction
+
 
 
 
