@@ -18,15 +18,33 @@ public class AsyncExample {
     public static void main(String[] args) {
 
         ExecutorService executor1 = Executors.newSingleThreadExecutor();
-        ExecutorService executor2 = Executors.newSingleThreadExecutor();
+//        ExecutorService executor2 = Executors.newSingleThreadExecutor();
 
         Supplier<List<Long>> supplyIDs = () -> {
             sleep(200);
             return Arrays.asList(1L, 2L, 3L);
         };
 
+        Function<List<Long>, List<User>> fetchUsers = ids -> {
+            sleep(300);
+            System.out.println("Function is running in " + Thread.currentThread().getName());
+            return ids.stream().map(User::new).collect(Collectors.toList());
+        };
 
-        Function<List<Long>, CompletableFuture<List<User>>> fetchUsers = ids -> {
+        Consumer<List<User>> displayer = users -> {
+            System.out.println("Consumer is running in " + Thread.currentThread().getName());
+            users.forEach(System.out::println);
+        };
+
+        CompletableFuture<List<Long>> completableFuture = CompletableFuture.supplyAsync(supplyIDs);
+        completableFuture.thenApply(fetchUsers)
+//                .thenAccept(displayer);
+                .thenAcceptAsync(displayer, executor1);
+
+        sleep(1_000);
+        executor1.shutdown();
+
+        /*Function<List<Long>, CompletableFuture<List<User>>> fetchUsers = ids -> {
             sleep(300);
             System.out.println("Function is currently running in " + Thread.currentThread().getName());
             Supplier<List<User>> userSupplier =
@@ -48,7 +66,7 @@ public class AsyncExample {
 
         sleep(1_000);
         executor1.shutdown();
-        executor2.shutdown();
+        executor2.shutdown();*/
     }
 
     private static void sleep(int timeout) {

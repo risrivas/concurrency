@@ -219,24 +219,33 @@ System.out.println("Result = " + string);
 #####################################################
 # Triggering a Task on the Completion of other tasks
 #####################################################
+
+thenRun()
+thenAccept()
+thenApply()
+
 - use case:
 have a list of primary keys - user ids (supplier)
 fetch all users from database for all the user ids (mapping)
 store them in a List<User> (reduce)
 
-- First task: provide the list of the primary keys
+- First task: provide the list of the primary keys => returns List<Long> of ids
 CompletableFuture<List<Long>> cf1 = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L));
 
-- Chain a subsequent task on the completion of the first task using thenApply()
-CompletableFuture<List<Long>> cf2 = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L))
+# thenApply() - takes arguments and returns value - just like a Function
+- Chain a subsequent task on the completion of the first task using "thenApply()"
+  => returns List<User> of Users
+CompletableFuture<List<User>> cf2 = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L))
                  .thenApply(list -> readUsers(list));
 
 - can define mapper which maps List<Long> (argument) to List<User> (return)
 Function<List<Long>, List<User>> mapper = list -> readUsers(list);
 
+# thenRun() - similar to thenApply() but no arguments to consume and no return
 - Suppose want to log a message when the list is available
 cf2.thenRun(() -> logger.info("The list of users has been read"));
 
+# thenAccept() - similar to thenRun() but takes arguments to consume and no return
 OR, use a consumer:
 cf2.thenAccept(users -> logger.info(users.size() + " users have been read"));
 
@@ -273,6 +282,9 @@ function: thenApply()
 ###############################
 # Composing CompletableFuture
 ###############################
+
+thenCompose()
+
 - use case:
 Suppose first task fetches a list of User IDs from a remote service
 Second task fetches user object from a DB
@@ -297,6 +309,16 @@ CompletableFuture.supplyAsync(userIdsSupplier)
 ################################
 # Triggering more than one task
 ################################
+
+thenAcceptBoth()
+thenCombine()
+thenAcceptEither()
+thenApplyToEither()
+thenRunAfterEither()
+allOf()
+anyOf()
+
+
 - use case:
 Get IDs -> Read Users + Log IDs -> Send Email -> Write Report + Log Emails
 
@@ -322,6 +344,44 @@ CompletableFuture<Void> cf3 = cf1.thenAcceptBoth(cf2, (id, name) -> logger.info(
 OR,
 CompletableFuture<List<User>> cf3 = cf1.thenCombine(cf2, (id, user) -> query(...)); // BiFunction
 
+- point to note here is that both results SHOULD be available
+
+
+## When either tasks complete, whichever completes first is the winner
+- example can be get the fastest quotes from different quotes service
+
+CompletableFuture<Long> cf1 = ...;
+CompletableFuture<Long> cf2 = ...;
+
+CompletableFuture<Void> cf3 = cf1.thenAcceptEither(cf2, id -> logger.info(...)); // Consumer
+
+OR,
+CompletableFuture<User> cf3 = cf1.thenApplyToEither(cf2, id -> readUser(id)); // Function
+
+OR,
+CompletableFuture<User> cf3 = cf1.thenRunAfterEither(cf2, () -> logger.info(...)); // Runnable
+
+- point to note that cf1 and cf2 should return same type of object - like <Long> above
+
+
+## if we have many CFs, we can control when all completed or first CF
+
+CompletableFuture<Long> cf1 = ...;
+CompletableFuture<User> cf2 = ...;
+CompletableFuture<String> cf3 = ...;
+CompletableFuture<List<User>> cf4 = ...;
+
+CompletableFuture<Void> cf = CompletableFuture.allOf(cf1, cf2, cf3, cf4, ...);
+
+OR,
+CompletableFuture<?> cf = CompletableFuture.anyOf(cf1, cf2, cf3, cf4, ...);
+
+
+## many ways to run tasks in different threads
+- best to check all the permutations and combinations in pdf
+
+
+## demo code
 
 
 
