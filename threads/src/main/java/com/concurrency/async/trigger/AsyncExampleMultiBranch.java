@@ -25,7 +25,6 @@ public class AsyncExampleMultiBranch {
             return Arrays.asList(1L, 2L, 3L);
         };
 
-
         Function<List<Long>, CompletableFuture<List<User>>> fetchUsers = ids -> {
             sleep(250);
             Supplier<List<User>> userSupplier =
@@ -41,7 +40,6 @@ public class AsyncExampleMultiBranch {
         };
 
         Consumer<List<User>> displayer = users -> users.forEach(System.out::println);
-
 
         CompletableFuture<List<Long>> completableFuture = CompletableFuture.supplyAsync(supplyIDs);
 

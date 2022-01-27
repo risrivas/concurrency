@@ -382,6 +382,12 @@ CompletableFuture<?> cf = CompletableFuture.anyOf(cf1, cf2, cf3, cf4, ...);
 
 
 ## demo code
+thenCompose() is like flatMap()
+
+
+##########################
+# Dealing with Exceptions
+##########################
 
 
 
