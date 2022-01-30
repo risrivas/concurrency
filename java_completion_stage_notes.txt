@@ -388,6 +388,14 @@ thenCompose() is like flatMap()
 ##########################
 # Dealing with Exceptions
 ##########################
+- any exception thrown from one pipeline will cause exception for the remaining
+- get() or join() should not be used
+- instead use:
+exceptionally()
+whenComplete()
+handle()
+whenCompleteAsync()
+handleAsync()
 
 
 
