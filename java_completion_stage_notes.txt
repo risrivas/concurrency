@@ -397,8 +397,14 @@ handle()
 whenCompleteAsync()
 handleAsync()
 
+- never use exceptionally() as it will swallow the exception
+- whenComplete() will at least display the exception and no recovery
+- best to use handle() when need to recover and also display the exception
 
 
+#########################
+# Real usage HTTP Client
+#########################
 
 
 
