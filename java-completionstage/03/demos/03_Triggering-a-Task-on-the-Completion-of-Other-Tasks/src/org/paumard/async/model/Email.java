@@ -1,4 +1,4 @@
-package com.concurrency.async.exception.model;
+package org.paumard.async.model;
 
 public class Email {
 

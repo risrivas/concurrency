@@ -1,6 +1,6 @@
 package com.concurrency.async.exception;
 
-import com.concurrency.async.exception.model.User;
+import com.concurrency.async.trigger.model.User;
 
 import java.util.Arrays;
 import java.util.List;

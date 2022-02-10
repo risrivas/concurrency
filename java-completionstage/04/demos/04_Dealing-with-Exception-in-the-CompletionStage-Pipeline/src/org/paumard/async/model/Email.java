@@ -1,13 +1,13 @@
-package com.concurrency.async.exception.model;
+package org.paumard.async.model;
 
-public class User {
+public class Email {
 
 	private long id;
 
-	public User() {
+	public Email() {
 	}
 	
-	public User(long id) {
+	public Email(long id) {
 		this.id = id;
 	}
 
@@ -21,6 +21,6 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + "]";
+		return "Email [id=" + id + "]";
 	}
 }

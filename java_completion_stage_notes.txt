@@ -405,6 +405,28 @@ handleAsync()
 #########################
 # Real usage HTTP Client
 #########################
+- if the data is passed from one thread to another thread => its very costly
+- so need to control data tranfer across threads
+
+- HTTP flow:
+client and request creation
+  -> sending the request
+    -> get the result (blocking)
+      -> write the result to a file (blocking)
+
+
+- async way:
+run the main thread and launch the above HTTP flow into another thread
+=> can be achieved by using Executor pattern OR CompletableFuture
+
+- issue:
+if main thread received 6 HTTP requests and it submits the same to thread pool of 4 threads
+remaining 2 HTTP requests will be blocked
+=> so better to use cached thread pool which can create new threads on demand
+
+- need to add "Logging" in the main thread
+=> Thus Executor pattern is not good here - logging should not be done in main thread and do a context switch
+
 
 
 
