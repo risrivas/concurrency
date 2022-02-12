@@ -12,10 +12,17 @@ example:
 - get user information from DB using id
 - send the mail to the users
 
+
 # generic template
+- one thread (main thread) "creates" a task (runnable)
+- this task is executed in another thread
+- main thread is still running in parallel to the other thread which is executing the task
+- result is passed to the main thread => however this is "blocking" if use future.get()
+
+- code snippet
 ExecutorService service = Executors.newSingle....();
 Runnable task = () -> {};
-Future future = service.submit(task);
+Future future = service.submit(task); // this will immediately return future
 
 // do something
 
@@ -26,6 +33,14 @@ future.cancel();
 => target is to make it non-blocking
 
 
+# Does asynchronous mean in "another thread"?
+No
+
+- example
+strings.sort(Comparator.naturalOrder())
+Comparator is executed some time in future in the "main" thread
+
+
 # asynchronous and concurrent are different notions
 - what we need is:
   - being able to trigger a task on the completion of another one
@@ -34,6 +49,7 @@ future.cancel();
 - one solution is fire an event and have a listener to get notified and do some action
 - however, this is still blocking and synchronous
 - thus, events are not the right tools - lets check messages
+
 - a message is sent to the broker
 - this will trigger the subscribers of this kind of message
 - however, even message driven design is synchronous
