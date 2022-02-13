@@ -59,10 +59,11 @@ Comparator is executed some time in future in the "main" thread
 - a message is a piece of data that recipients will get and react upon based on the message
 
 
+
 #####################################################
 # Setting up an async operation with CompletionStage
 #####################################################
-- Define a task
+- Define a task wrapped in an object like Runnable or Callable
 - how to launch a task in another thread?
   - Runnable (no return)
   - Callable (return a value and throws exception)
@@ -109,7 +110,7 @@ Supplier<User> supplier = () -> connection.readUser(1L);
 CompletableFuture<User> compFut = CompletableFuture.supplyAsync(supplier);
 
 - can convert any Callable to Supplier but ensure that supplier can NOT throw any checked exceptions
-- by default, the async tasks are run in the common fork/join pool
+- by default, the async tasks are run in the common fork/join pool threads
 - however, can also pass executor service as an argument
 - example:
 Future<?> future = service.submit(runnable);
