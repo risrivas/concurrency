@@ -311,6 +311,8 @@ CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> updateDB())
 CompletableFuture<Void> cf = CompletableFuture.supplyAsync(() -> List.of(1L, 2L, 3L))
                                               .thenRun(() -> logger.info("..."));
 
+
+>>>>>>>>>>>>
 - So the first task can be:
 supplier: supplyAsync()
 runnable: runAsync()
@@ -319,6 +321,7 @@ runnable: runAsync()
 runnable: thenRun()
 consumer: thenAccept()
 function: thenApply()
+>>>>>>>>>>>>
 
 
 ###############################
@@ -326,6 +329,8 @@ function: thenApply()
 ###############################
 
 thenCompose()
+
+- used whenever thenApply(function) -> function used will return CompletableFuture instead of other concrete return value
 
 - use case:
 Suppose first task fetches a list of User IDs from a remote service
@@ -381,10 +386,12 @@ execute a BiFunction
 CompletableFuture<Long> cf1 = ...;
 CompletableFuture<User> cf2 = ...;
 
-CompletableFuture<Void> cf3 = cf1.thenAcceptBoth(cf2, (id, name) -> logger.info(...)); // BiConsumer
+CompletableFuture<Void> cf3 = cf1.thenAcceptBoth(cf2, (id, user) -> logger.info(...)); // BiConsumer
+=> here <id> is <Long> from cf1 and <user> is <User> from cf2
 
 OR,
 CompletableFuture<List<User>> cf3 = cf1.thenCombine(cf2, (id, user) -> query(...)); // BiFunction
+=> List<User> is returned
 
 - point to note here is that both results SHOULD be available
 
