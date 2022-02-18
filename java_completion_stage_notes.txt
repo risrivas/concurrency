@@ -420,7 +420,7 @@ CompletableFuture<User> cf2 = ...;
 CompletableFuture<String> cf3 = ...;
 CompletableFuture<List<User>> cf4 = ...;
 
-CompletableFuture<Void> cf = CompletableFuture.allOf(cf1, cf2, cf3, cf4, ...);
+CompletableFuture<Void> cf = CompletableFuture.allOf(cf1, cf2, cf3, cf4, ...); // same as CountDownLatch
 
 OR,
 CompletableFuture<?> cf = CompletableFuture.anyOf(cf1, cf2, cf3, cf4, ...);
@@ -428,6 +428,10 @@ CompletableFuture<?> cf = CompletableFuture.anyOf(cf1, cf2, cf3, cf4, ...);
 
 ## many ways to run tasks in different threads
 - best to check all the permutations and combinations in pdf
+- basically:
+all xxxAsync() methods are run common fork-join pool
+if executor is passed to xxxAsync() methods, then it will run in thread pool of executor
+
 
 
 ## demo code
