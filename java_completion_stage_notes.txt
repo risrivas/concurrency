@@ -433,7 +433,6 @@ all xxxAsync() methods are run common fork-join pool
 if executor is passed to xxxAsync() methods, then it will run in thread pool of executor
 
 
-
 ## demo code
 thenCompose() is like flatMap()
 

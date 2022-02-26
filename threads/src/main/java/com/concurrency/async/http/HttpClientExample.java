@@ -17,7 +17,7 @@ public class HttpClientExample {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
+                .version(HttpClient.Version.HTTP_2)
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
